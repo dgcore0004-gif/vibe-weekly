@@ -1,17 +1,25 @@
 # Vibe Weekly
 
-AI 개발자들을 위한 주간 바이브코딩 트렌드 레이더.
-매주 금요일 Reddit, HN, GitHub에서 자동 수집 → Claude로 요약 → Netlify 자동 배포.
+AI 개발자들을 위한 주간 바이브코딩 트렌드 레이더.  
+매주 금요일 **Tavily API**로 웹 전체를 검색 → 자동 분류 → Netlify 자동 배포.
 
 ## 구조
 
 ```
 src/                  # React 프론트엔드
 public/data.json      # 매주 자동 교체되는 트렌드 데이터
-scripts/collect.mjs   # 수집 스크립트 (Reddit + HN + GitHub + Claude)
-.github/workflows/    # 매주 금요일 자동 실행
+scripts/collect.mjs   # Tavily 수집 스크립트
+.github/workflows/    # 매주 금요일 오전 9시(KST) 자동 실행
 build.mjs             # esbuild 번들러
 ```
+
+## 필요한 것
+
+| 항목 | 무료? | 링크 |
+|---|---|---|
+| Tavily API 키 | ✅ 1,000회/월 무료 | https://app.tavily.com |
+| GitHub 계정 | ✅ 무료 | — |
+| Netlify 계정 | ✅ 무료 | https://netlify.com |
 
 ## 로컬 개발
 
@@ -21,42 +29,37 @@ npm run dev       # 개발 서버 (localhost:5173)
 npm run build     # dist/ 빌드
 ```
 
-## 배포 (최초 1회)
-
-1. GitHub 레포에 push
-2. [Netlify](https://app.netlify.com) → Add new site → Import from GitHub
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-3. GitHub Secrets 등록 (Settings → Secrets → Actions):
-   - `ANTHROPIC_API_KEY`
-   - `REDDIT_CLIENT_ID`
-   - `REDDIT_CLIENT_SECRET`
-
-이후 매주 금요일 오전 9시(KST) 자동 실행됩니다.
-
-## 수동 수집 실행
+## 로컬 수집 테스트
 
 ```bash
-cp .env.example .env
-# .env 파일에 실제 키 입력 후:
-cd scripts && npm install && cd ..
-node scripts/collect.mjs
+# .env 파일 생성
+echo "TAVILY_API_KEY=tvly-..." > .env
+
+# Windows
+$env:TAVILY_API_KEY="tvly-..."; node scripts/collect.mjs
+
+# Mac/Linux
+TAVILY_API_KEY=tvly-... node scripts/collect.mjs
 ```
 
-## Reddit 앱 등록 (5분)
+## 배포 (최초 1회)
 
-1. https://www.reddit.com/prefs/apps 접속
-2. "Create another app" 클릭
-3. 타입: **script**
-4. redirect uri: `http://localhost`
-5. 생성 후 client_id (앱 이름 아래 짧은 문자열)와 secret 복사
+**1. GitHub Secret 등록**  
+[Settings → Secrets → Actions](../../settings/secrets/actions) 에서:
+- `TAVILY_API_KEY` → Tavily 키 입력
+
+**2. Netlify 연결**  
+[app.netlify.com](https://app.netlify.com) → Add new site → Import from GitHub → `vibe-weekly`
+- Build command: `npm run build`
+- Publish directory: `dist`
+
+이후 매주 금요일 자동으로 수집 → 빌드 → 배포됩니다.
 
 ## 기술 스택
 
 - React 18 + TypeScript
 - Tailwind CSS (CDN)
 - esbuild (번들러)
+- Tavily API (웹 검색 수집)
 - GitHub Actions (자동화)
 - Netlify (호스팅)
-- Claude API (요약)
-- Reddit API + HN API + GitHub API (수집)

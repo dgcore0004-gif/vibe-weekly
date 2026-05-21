@@ -1,8 +1,5 @@
 {
   "name": "vibe-weekly-scripts",
   "private": true,
-  "type": "module",
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.55.0"
-  }
+  "type": "module"
 }
