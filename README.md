@@ -6,11 +6,11 @@ AI 개발자들을 위한 주간 바이브코딩 트렌드 레이더.
 ## 구조
 
 ```
-src/                  # React 프론트엔드
-public/data.json      # 매주 자동 교체되는 트렌드 데이터
-scripts/collect.mjs   # Tavily 수집 스크립트
-.github/workflows/    # 매주 금요일 오전 9시(KST) 자동 실행
-build.mjs             # esbuild 번들러
+Netlify 빌드 시작
+  → scripts/collect.mjs 실행 (Tavily 검색)
+  → public/data.json 업데이트
+  → npm run build (esbuild)
+  → dist/ 배포
 ```
 
 ## 필요한 것
@@ -18,42 +18,44 @@ build.mjs             # esbuild 번들러
 | 항목 | 무료? | 링크 |
 |---|---|---|
 | Tavily API 키 | ✅ 1,000회/월 무료 | https://app.tavily.com |
-| GitHub 계정 | ✅ 무료 | — |
 | Netlify 계정 | ✅ 무료 | https://netlify.com |
+| cron-job.org | ✅ 무료 | https://cron-job.org |
 
-## 로컬 개발
+**GitHub Secrets 불필요, GitHub Actions 불필요.**
 
-```bash
-npm install
-npm run dev       # 개발 서버 (localhost:5173)
-npm run build     # dist/ 빌드
-```
+## 배포 설정 (최초 1회)
 
-## 로컬 수집 테스트
+### 1. Netlify 연결
 
-```bash
-# .env 파일 생성
-echo "TAVILY_API_KEY=tvly-..." > .env
-
-# Windows
-$env:TAVILY_API_KEY="tvly-..."; node scripts/collect.mjs
-
-# Mac/Linux
-TAVILY_API_KEY=tvly-... node scripts/collect.mjs
-```
-
-## 배포 (최초 1회)
-
-**1. GitHub Secret 등록**  
-[Settings → Secrets → Actions](../../settings/secrets/actions) 에서:
-- `TAVILY_API_KEY` → Tavily 키 입력
-
-**2. Netlify 연결**  
 [app.netlify.com](https://app.netlify.com) → Add new site → Import from GitHub → `vibe-weekly`
-- Build command: `npm run build`
+- Build command: `node scripts/collect.mjs && npm run build`
 - Publish directory: `dist`
 
-이후 매주 금요일 자동으로 수집 → 빌드 → 배포됩니다.
+### 2. Netlify 환경변수 등록
+
+Netlify 대시보드 → Site settings → **Environment variables** → Add variable
+- Key: `TAVILY_API_KEY`
+- Value: `tvly-...` (Tavily 키)
+
+### 3. Netlify Build Hook 생성
+
+Netlify 대시보드 → Site settings → **Build & deploy** → Build hooks → Add build hook
+- Hook name: `Weekly Cron`
+- 생성된 URL 복사 (예: `https://api.netlify.com/build_hooks/xxxx`)
+
+### 4. cron-job.org 설정
+
+[cron-job.org](https://cron-job.org) 가입 → Create cronjob
+- URL: 위에서 복사한 Build Hook URL
+- Schedule: 매주 금요일 09:00 (KST)
+
+## 로컬 테스트
+
+```powershell
+# Windows
+$env:TAVILY_API_KEY="tvly-..."; node scripts/collect.mjs
+npm run build
+```
 
 ## 기술 스택
 
@@ -61,5 +63,5 @@ TAVILY_API_KEY=tvly-... node scripts/collect.mjs
 - Tailwind CSS (CDN)
 - esbuild (번들러)
 - Tavily API (웹 검색 수집)
-- GitHub Actions (자동화)
-- Netlify (호스팅)
+- Netlify (호스팅 + 빌드)
+- cron-job.org (주간 트리거)

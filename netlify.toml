@@ -1,5 +1,6 @@
 [build]
-  command = "npm run build"
+  # 빌드 전에 수집 스크립트 실행 → 최신 data.json 생성 → 빌드
+  command = "node scripts/collect.mjs && npm run build"
   publish = "dist"
 
 [[redirects]]

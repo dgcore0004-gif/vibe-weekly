@@ -290,8 +290,8 @@ function buildSummaryCards(trendPosts) {
 
 async function main() {
   if (!process.env.TAVILY_API_KEY) {
-    console.error("❌ TAVILY_API_KEY 환경변수가 없습니다.");
-    process.exit(1);
+    console.warn("⚠️  TAVILY_API_KEY 없음 — 기존 data.json 유지하고 빌드 계속.");
+    process.exit(0);
   }
 
   console.log("🚀 Vibe Weekly 수집 시작 (Tavily)...\n");
