@@ -3,7 +3,7 @@
  * npm run build 로 실행
  */
 import { build } from "esbuild";
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "fs";
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -11,8 +11,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const distDir = join(__dirname, "dist");
 const assetsDir = join(distDir, "assets");
 
-// 클린 빌드
-try { rmSync(distDir, { recursive: true, force: true }); } catch {}
 mkdirSync(assetsDir, { recursive: true });
 
 // JS 번들
